@@ -396,10 +396,13 @@ const CyberSentinel = () => {
       setTimeout(() => nextLevel(), 2000);
     } else {
       toast({
-        title: "Try Again",
-        description: "Check the hint and try a different approach",
+        title: "Level Restarting",
+        description: "Incorrect answer - starting level over",
         variant: "destructive"
       });
+      setGameState(prev => ({ ...prev, awaitingInput: false }));
+      setTimeout(() => startLevel(gameState.level), 1500);
+      return;
     }
 
     setGameState(prev => ({ ...prev, awaitingInput: false }));
