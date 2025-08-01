@@ -358,8 +358,9 @@ const CyberSentinel = () => {
     if (gameState.level >= 8) {
       gameComplete();
     } else {
-      setGameState(prev => ({ ...prev, level: prev.level + 1 }));
-      setTimeout(() => startLevel(gameState.level + 1), 1000);
+      const newLevel = gameState.level + 1;
+      setGameState(prev => ({ ...prev, level: newLevel }));
+      setTimeout(() => startLevel(newLevel), 1000);
     }
   };
 
