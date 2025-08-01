@@ -180,14 +180,13 @@ const CyberSentinel = () => {
   const level2 = () => {
     addOutput("🌐 Task: Simulate a port scan on 192.168.1.10", true);
     setTimeout(() => {
-      addOutput("Scanning ports...", false);
-      setTimeout(() => addOutput("🟢 Port 22/tcp OPEN", false), 500);
-      setTimeout(() => addOutput("🟢 Port 80/tcp OPEN", false), 1000);
-      setTimeout(() => addOutput("🟢 Port 443/tcp OPEN", false), 1500);
-      setTimeout(() => {
-        addOutput("💡 Scanning exposes potential attack surfaces.", true);
-        setTimeout(() => nextLevel(), 2000);
-      }, 2000);
+      setGameState(prev => ({
+        ...prev,
+        awaitingInput: true,
+        inputPrompt: "Type 'nmap 192.168.1.10' to begin scan:",
+        expectedAnswer: "nmap 192.168.1.10",
+        currentTask: "Network port scanning"
+      }));
     }, 1000);
   };
 
@@ -294,6 +293,26 @@ const CyberSentinel = () => {
         response = isCorrect 
           ? "✅ Correct! You've mastered basic OSINT."
           : "❌ Not quite. Check the HTML source for hidden data.";
+        break;
+      case 2:
+        isCorrect = input === expected;
+        if (isCorrect) {
+          response = "Scanning...\n";
+          addOutput(response, false);
+          setCurrentInput('');
+          setGameState(prev => ({ ...prev, awaitingInput: false }));
+          
+          setTimeout(() => addOutput("🟢 Port 22/tcp OPEN", false), 500);
+          setTimeout(() => addOutput("🟢 Port 80/tcp OPEN", false), 1000);
+          setTimeout(() => addOutput("🟢 Port 443/tcp OPEN", false), 1500);
+          setTimeout(() => {
+            addOutput("💡 Scanning reveals open ports. These are possible attack vectors.", true);
+            setTimeout(() => nextLevel(), 2000);
+          }, 2000);
+          return;
+        } else {
+          response = "❌ Incorrect command. Type the exact nmap command shown.";
+        }
         break;
       case 3:
         isCorrect = input.includes("' or '1'='1") || input === expected;
