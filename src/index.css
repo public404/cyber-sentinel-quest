@@ -2,41 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Cyberpunk Terminal Design System - Matrix-inspired hacker aesthetics */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Cyberpunk color palette */
+    --background: 220 100% 2%;
+    --foreground: 120 100% 80%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 50% 5%;
+    --card-foreground: 120 100% 85%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 50% 8%;
+    --popover-foreground: 120 100% 85%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 120 100% 50%;
+    --primary-foreground: 220 100% 5%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 180 100% 40%;
+    --secondary-foreground: 220 100% 5%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 30% 15%;
+    --muted-foreground: 120 50% 60%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 180 100% 50%;
+    --accent-foreground: 220 100% 5%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 220 100% 5%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 120 100% 50%;
+    --success-foreground: 220 100% 5%;
 
-    --radius: 0.5rem;
+    --warning: 45 100% 60%;
+    --warning-foreground: 220 100% 5%;
+
+    --border: 120 50% 20%;
+    --input: 220 50% 8%;
+    --ring: 120 100% 50%;
+
+    --radius: 0.25rem;
+
+    /* Terminal-specific colors */
+    --terminal-bg: 220 100% 2%;
+    --terminal-text: 120 100% 80%;
+    --terminal-accent: 180 100% 50%;
+    --terminal-cursor: 120 100% 50%;
+    --terminal-error: 0 100% 60%;
+    --terminal-success: 120 100% 50%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-terminal: linear-gradient(180deg, hsl(var(--terminal-bg)), hsl(220 80% 3%));
+    
+    /* Shadows and effects */
+    --shadow-terminal: 0 0 20px hsl(var(--primary) / 0.3);
+    --shadow-glow: 0 0 30px hsl(var(--primary) / 0.5);
+    --text-glow: 0 0 10px hsl(var(--primary) / 0.8);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --cursor-blink: blink 1s infinite;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +128,117 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-mono;
+    background: var(--gradient-terminal);
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+}
+
+/* Terminal-specific styles */
+@layer components {
+  .terminal-window {
+    @apply bg-card border border-primary/20 rounded shadow-lg;
+    box-shadow: var(--shadow-terminal);
+    background: var(--gradient-terminal);
+  }
+
+  .terminal-text {
+    @apply text-foreground font-mono;
+    text-shadow: var(--text-glow);
+  }
+
+  .terminal-input {
+    @apply bg-input border border-primary/30 text-foreground font-mono p-3 rounded;
+    background: hsl(var(--input));
+    color: hsl(var(--foreground));
+    text-shadow: var(--text-glow);
+    transition: var(--transition-smooth);
+  }
+
+  .terminal-input:focus {
+    @apply outline-none border-primary ring-2 ring-primary/50;
+    box-shadow: var(--shadow-glow);
+  }
+
+  .terminal-cursor::after {
+    content: '█';
+    @apply text-primary animate-pulse;
+    animation: var(--cursor-blink);
+  }
+
+  .matrix-text {
+    @apply text-primary;
+    text-shadow: var(--text-glow);
+  }
+
+  .success-text {
+    @apply text-success;
+    text-shadow: 0 0 10px hsl(var(--success) / 0.8);
+  }
+
+  .error-text {
+    @apply text-destructive;
+    text-shadow: 0 0 10px hsl(var(--destructive) / 0.8);
+  }
+
+  .cyber-button {
+    @apply bg-primary/10 border border-primary text-primary font-mono px-4 py-2 rounded;
+    background: linear-gradient(45deg, hsl(var(--primary) / 0.1), hsl(var(--accent) / 0.1));
+    text-shadow: var(--text-glow);
+    transition: var(--transition-smooth);
+  }
+
+  .cyber-button:hover {
+    @apply bg-primary/20 border-accent;
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+  }
+
+  .level-indicator {
+    @apply text-accent font-bold;
+    text-shadow: 0 0 10px hsl(var(--accent) / 0.8);
+  }
+
+  .typing-animation {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid hsl(var(--primary));
+    animation: typing 2s steps(40) forwards, blink-caret 1s step-end infinite;
+  }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  @keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: hsl(var(--primary)); }
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+  }
+
+  .scanline {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scanline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+    animation: scanline 2s linear infinite;
+  }
+
+  @keyframes scanline {
+    0% { left: -100%; }
+    100% { left: 100%; }
   }
 }
