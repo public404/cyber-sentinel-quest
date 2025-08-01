@@ -14,6 +14,8 @@ interface GameState {
   inputPrompt: string;
   expectedAnswer: string;
   currentTask: string;
+  level3Step: 'username' | 'password' | null;
+  level3Username: string;
 }
 
 const CyberSentinel = () => {
@@ -27,7 +29,9 @@ const CyberSentinel = () => {
     awaitingInput: false,
     inputPrompt: '',
     expectedAnswer: '',
-    currentTask: ''
+    currentTask: '',
+    level3Step: null,
+    level3Username: ''
   });
   const [currentInput, setCurrentInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -191,14 +195,25 @@ const CyberSentinel = () => {
   };
 
   const level3 = () => {
-    addOutput("💥 Task: Bypass the login using SQL Injection.", true);
+    addOutput("💥 Level 3: Exploitation (SQL Injection)", true);
     setTimeout(() => {
+      addOutput("", false);
+      addOutput("A vulnerable login form is exposed.", false);
+      addOutput("You don't know the credentials. Try to break in using SQL injection.", false);
+      addOutput("", false);
+      addOutput("HINTS:", false);
+      addOutput("- Think about how to **trick** the SQL query into returning TRUE", false);
+      addOutput("- Use: `' OR '1'='1`", false);
+      addOutput("- Try injecting into **either** username or password", false);
+      addOutput("", false);
+      
       setGameState(prev => ({
         ...prev,
         awaitingInput: true,
         inputPrompt: "Username:",
-        expectedAnswer: "' or '1'='1",
-        currentTask: "SQL Injection bypass"
+        expectedAnswer: "",
+        currentTask: "SQL Injection bypass",
+        level3Step: 'username'
       }));
     }, 1000);
   };
@@ -315,10 +330,27 @@ const CyberSentinel = () => {
         }
         break;
       case 3:
-        isCorrect = input.includes("' or '1'='1") || input === expected;
-        response = isCorrect
-          ? "🔓 Access Granted! SQLi successful."
-          : "❌ Login failed. Try a common injection.";
+        if (gameState.level3Step === 'username') {
+          // Store username and move to password input
+          setGameState(prev => ({
+            ...prev,
+            level3Username: currentInput,
+            level3Step: 'password',
+            inputPrompt: "Password:",
+            awaitingInput: true
+          }));
+          setCurrentInput('');
+          return;
+        } else if (gameState.level3Step === 'password') {
+          // Check if either username or password contains SQL injection
+          const username = gameState.level3Username.toLowerCase();
+          const password = input;
+          
+          isCorrect = username.includes("' or '1'='1") || password.includes("' or '1'='1");
+          response = isCorrect
+            ? "🔓 Access Granted! SQL Injection successful.\n💡 LESSON: Always sanitize user inputs in web forms."
+            : "❌ Access Denied. Try a classic SQL injection like ' OR '1'='1";
+        }
         break;
       case 4:
         isCorrect = input === expected;
@@ -401,7 +433,9 @@ const CyberSentinel = () => {
       awaitingInput: false,
       inputPrompt: '',
       expectedAnswer: '',
-      currentTask: ''
+      currentTask: '',
+      level3Step: null,
+      level3Username: ''
     });
     setCurrentInput('');
   };
