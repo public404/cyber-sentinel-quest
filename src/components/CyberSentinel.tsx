@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 
 interface GameState {
   username: string;
@@ -458,6 +460,14 @@ const CyberSentinel = () => {
               <p className="text-accent mb-8">
                 Learn. Hack. Defend.
               </p>
+              <div className="mb-6">
+                <Link to="/quiz">
+                  <Button variant="outline" className="cyber-button">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Take Knowledge Test
+                  </Button>
+                </Link>
+              </div>
             </div>
             
             <div className="space-y-6">
@@ -503,15 +513,23 @@ const CyberSentinel = () => {
                   Agent: {gameState.username}
                 </p>
               </div>
-              <div className="text-right">
-                <div className="level-indicator text-lg">
-                  LEVEL {gameState.level}/8
+              <div className="flex items-center gap-4">
+                <Link to="/quiz">
+                  <Button variant="outline" size="sm" className="cyber-button">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Knowledge Test
+                  </Button>
+                </Link>
+                <div className="text-right">
+                  <div className="level-indicator text-lg">
+                    LEVEL {gameState.level}/8
+                  </div>
+                  {gameState.currentTask && (
+                    <p className="text-sm text-muted-foreground">
+                      {gameState.currentTask}
+                    </p>
+                  )}
                 </div>
-                {gameState.currentTask && (
-                  <p className="text-sm text-muted-foreground">
-                    {gameState.currentTask}
-                  </p>
-                )}
               </div>
             </div>
 
