@@ -13,54 +13,54 @@ interface Question {
 
 const questions: Question[] = [
   {
-    question: "What does a SIEM tool primarily help with?",
+    question: "A large number of requests from a single IP to port 22 is most likely a:",
     options: [
-      "Encrypting traffic",
-      "Managing firewalls", 
-      "Log collection and threat detection",
-      "Conducting phishing simulations"
-    ],
-    answer: "c"
-  },
-  {
-    question: "What is the primary purpose of 'tcpdump'?",
-    options: [
-      "Brute force detection",
-      "Network packet capture and analysis",
-      "Port scanning",
-      "Malware sandboxing"
+      "Port scan",
+      "Brute force SSH attack",
+      "Normal admin access",
+      "DNS tunneling"
     ],
     answer: "b"
   },
   {
-    question: "Which HTTP status code might indicate a potential web vulnerability?",
+    question: "Decode this base64 payload: 'ZWNobyBoYWNrZWQh'",
     options: [
-      "200",
-      "403",
-      "302", 
-      "500"
+      "hack complete!",
+      "echo hacked!",
+      "sudo backdoor",
+      "reverse shell"
     ],
-    answer: "d"
+    answer: "b"
   },
   {
-    question: "A login attempt with 'admin' OR '1'='1' suggests what type of attack?",
+    question: "Which Nmap command would you use for a stealth scan?",
     options: [
-      "XSS",
-      "CSRF",
-      "SQL Injection",
-      "Buffer overflow"
+      "nmap -sS",
+      "nmap -sU",
+      "nmap -sV",
+      "nmap -O"
     ],
-    answer: "c"
+    answer: "a"
   },
   {
-    question: "What is the best first response to a ransomware infection?",
+    question: "You see repeated log entries like:\n[Auth] Failed login from 192.168.1.55 user=root\nWhat should be your immediate action?",
     options: [
-      "Pay the ransom",
-      "Isolate the infected system", 
+      "Block IP 192.168.1.55",
       "Reboot the system",
-      "Run antivirus"
+      "Grant root access to the user",
+      "Clear the logs"
     ],
-    answer: "b"
+    answer: "a"
+  },
+  {
+    question: "You receive a phishing email with a suspicious attachment. What's your first action?",
+    options: [
+      "Open it in a browser",
+      "Forward it to coworkers",
+      "Analyze it in a sandbox",
+      "Upload to social media"
+    ],
+    answer: "c"
   }
 ];
 
