@@ -13,52 +13,102 @@ interface Question {
 
 const questions: Question[] = [
   {
-    question: "A large number of requests from a single IP to port 22 is most likely a:",
+    question: "A system is repeatedly logging: 'Connection refused on port 22 from 198.51.100.10'. What is the most likely cause?",
     options: [
-      "Port scan",
-      "Brute force SSH attack",
-      "Normal admin access",
-      "DNS tunneling"
+      "Firewall blocking SSH",
+      "Port forwarding misconfiguration",
+      "Brute force attempt",
+      "Malware on host"
+    ],
+    answer: "c"
+  },
+  {
+    question: "Decode this base64 payload: 'Y3VybCAtcyBodHRwOi8vZXZpbC5jb20='",
+    options: [
+      "wget malware.com",
+      "curl -s http://evil.com",
+      "ssh into evil.com",
+      "base64 --decode attack"
     ],
     answer: "b"
   },
   {
-    question: "Decode this base64 payload: 'ZWNobyBoYWNrZWQh'",
+    question: "What tool would you use to investigate a suspicious process running on port 4444?",
     options: [
-      "hack complete!",
-      "echo hacked!",
-      "sudo backdoor",
-      "reverse shell"
+      "ps",
+      "netstat or ss",
+      "chmod",
+      "dig"
     ],
     answer: "b"
   },
   {
-    question: "Which Nmap command would you use for a stealth scan?",
+    question: "A team reports slow internet and suspect DNS issues. What command would help you verify DNS resolution?",
     options: [
-      "nmap -sS",
-      "nmap -sU",
-      "nmap -sV",
-      "nmap -O"
+      "ping 127.0.0.1",
+      "curl localhost",
+      "dig or nslookup",
+      "nmap"
+    ],
+    answer: "c"
+  },
+  {
+    question: "What log file should you check for sudo command activity?",
+    options: [
+      "/var/log/auth.log",
+      "/var/log/kern.log",
+      "/etc/passwd",
+      "~/.bash_history"
     ],
     answer: "a"
   },
   {
-    question: "You see repeated log entries like:\n[Auth] Failed login from 192.168.1.55 user=root\nWhat should be your immediate action?",
+    question: "You're asked to block all incoming traffic except SSH. Which command is appropriate?",
     options: [
-      "Block IP 192.168.1.55",
-      "Reboot the system",
-      "Grant root access to the user",
-      "Clear the logs"
+      "ufw deny ssh",
+      "iptables --flush",
+      "ufw default deny incoming; ufw allow ssh",
+      "killall firewall"
     ],
-    answer: "a"
+    answer: "c"
   },
   {
-    question: "You receive a phishing email with a suspicious attachment. What's your first action?",
+    question: "You notice a connection from an unknown IP with a reverse shell. What is your first step?",
     options: [
-      "Open it in a browser",
-      "Forward it to coworkers",
-      "Analyze it in a sandbox",
-      "Upload to social media"
+      "Close the shell",
+      "Trace the IP",
+      "Disconnect the machine from the network",
+      "Kill all processes"
+    ],
+    answer: "c"
+  },
+  {
+    question: "After scanning with Nmap, you see port 3389 open on a Windows server. What should you check?",
+    options: [
+      "SNMP settings",
+      "FTP access",
+      "RDP hardening and brute-force protection",
+      "MySQL configuration"
+    ],
+    answer: "c"
+  },
+  {
+    question: "A user reports phishing. What's your immediate action?",
+    options: [
+      "Delete the email",
+      "Click to test",
+      "Preserve email headers and analyze",
+      "Change firewall rules"
+    ],
+    answer: "c"
+  },
+  {
+    question: "You found a base64 payload embedded in an HTML file. What's the best way to investigate?",
+    options: [
+      "Open in browser",
+      "Run it directly",
+      "Decode and analyze in a sandbox or offline",
+      "Ignore it"
     ],
     answer: "c"
   }
