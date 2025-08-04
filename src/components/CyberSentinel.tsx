@@ -460,11 +460,17 @@ const CyberSentinel = () => {
               <p className="text-accent mb-8">
                 Learn. Hack. Defend.
               </p>
-              <div className="mb-6">
+              <div className="mb-6 space-y-4">
                 <Link to="/quiz">
-                  <Button variant="outline" className="cyber-button">
+                  <Button variant="outline" className="cyber-button w-full">
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Take Knowledge Test
+                    Take Knowledge Test (5 Levels)
+                  </Button>
+                </Link>
+                <Link to="/role-quiz">
+                  <Button variant="outline" className="cyber-button w-full">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Career Role Challenges
                   </Button>
                 </Link>
               </div>
