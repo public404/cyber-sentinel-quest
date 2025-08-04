@@ -12,7 +12,7 @@ const Quiz = () => {
   const [quizState, setQuizState] = useState<QuizState>({
     currentLevel: -1, // -1 means level selector
     currentQuestion: 0,
-    selectedAnswers: Array(levels.length).fill(null).map(() => []),
+    selectedAnswers: Array.from({ length: levels.length }, () => []),
     showResults: false,
     quizComplete: false
   });
