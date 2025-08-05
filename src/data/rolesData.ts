@@ -48,15 +48,21 @@ export const roles: { [roleName: string]: { [levelName: string]: Question[] } } 
   },
   "SOC Analyst": {
     "Level 1 – SIEM Basics": [
-      {"question": "What does SIEM stand for?", "options": ["a) Security Information and Event Management", "b) System Information Event Monitor", "c) Security Incident Emergency Management", "d) System Integrated Event Monitor"], "answer": "a"},
-      {"question": "Which is a common SIEM tool?", "options": ["a) Wireshark", "b) Splunk", "c) Nmap", "d) Metasploit"], "answer": "b"},
-      {"question": "What is the primary purpose of log correlation?", "options": ["a) Data compression", "b) Finding patterns across events", "c) File storage", "d) Network routing"], "answer": "b"}
+      {"question": "What is a SIEM used for?", "options": ["a) Encrypt files", "b) Patch vulnerabilities", "c) Aggregate and analyze logs", "d) Perform backups"], "answer": "c"},
+      {"question": "Which of the following is a SIEM tool?", "options": ["a) Nmap", "b) Splunk", "c) Wireshark", "d) Nessus"], "answer": "b"},
+      {"question": "You see a brute force alert from the SIEM. What's your first step?", "options": ["a) Block all traffic", "b) Escalate to legal", "c) Investigate login attempts", "d) Restart the SIEM"], "answer": "c"},
+      {"question": "What is a 'correlation rule' in SIEM?", "options": ["a) Alert threshold", "b) License configuration", "c) Linking multiple log events to detect patterns", "d) Backup setting"], "answer": "c"},
+      {"question": "Which log would best help investigate failed logins on a Linux system?", "options": ["a) /var/log/syslog", "b) /etc/passwd", "c) /var/log/auth.log", "d) /boot/grub.cfg"], "answer": "c"},
+      {"question": "A spike in outbound DNS requests could indicate:", "options": ["a) DDoS", "b) Data exfiltration", "c) Network scan", "d) Misconfigured firewall"], "answer": "b"},
+      {"question": "What does a 'false positive' alert mean?", "options": ["a) Alert that was missed", "b) Alert that was valid", "c) Alert triggered incorrectly", "d) Malicious behavior"], "answer": "c"},
+      {"question": "Which protocol's logs are crucial for detecting phishing emails?", "options": ["a) FTP", "b) SMTP", "c) SNMP", "d) ICMP"], "answer": "b"},
+      {"question": "Which of the following best reduces SIEM false positives?", "options": ["a) Disable alerts", "b) Use default rules", "c) Fine-tune correlation rules", "d) Reduce log sources"], "answer": "c"},
+      {"question": "What action should follow a confirmed SIEM alert of malware activity?", "options": ["a) Alert HR", "b) Escalate and isolate affected host", "c) Ignore and wait", "d) Uninstall SIEM"], "answer": "b"}
     ],
-    "Level 2 – Alert Analysis": [
-      {"question": "What is a false positive in security monitoring?", "options": ["a) A real threat", "b) An alert that is not a real threat", "c) A missed threat", "d) A system error"], "answer": "b"},
-      {"question": "Which metric measures how quickly incidents are detected?", "options": ["a) MTTR", "b) MTTD", "c) MTBF", "d) SLA"], "answer": "b"},
-      {"question": "What should be the first step when analyzing a security alert?", "options": ["a) Block the source", "b) Verify the alert is legitimate", "c) Escalate to management", "d) Delete the logs"], "answer": "b"}
-    ]
+    "Level 2 – Alert Analysis": [],
+    "Level 3 – Incident Triage": [],
+    "Level 4 – Threat Hunting": [],
+    "Level 5 – Reporting & Escalation": []
   },
   "IT Security Administrator": {
     "Level 1 – System Hardening": [
