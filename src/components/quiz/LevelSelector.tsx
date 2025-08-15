@@ -32,9 +32,9 @@ const LevelSelector = ({ completedLevels, onSelectLevel, levelScores, levels: cu
       
       <div className="grid gap-4">
         {levelsToUse.map((level, index) => {
-          const isUnlocked = index === 0 || completedLevels[index - 1];
-          const isCompleted = completedLevels[index];
-          const score = levelScores[index] || 0;
+            const isUnlocked = index === 0 || (completedLevels[index - 1] && (levelScores[index - 1] || 0) >= 7);
+            const isCompleted = completedLevels[index];
+            const score = levelScores[index] || 0;
           
           return (
             <Card key={index} className={`transition-all ${isUnlocked ? 'hover:shadow-md' : 'opacity-60'}`}>

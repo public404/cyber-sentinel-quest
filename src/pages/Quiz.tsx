@@ -181,6 +181,7 @@ const Quiz = () => {
             onBackToLevels={handleBackToLevels}
             onNextLevel={handleNextLevel}
             isLastLevel={quizState.currentLevel === levels.length - 1}
+            passingScore={7}
           />
         </div>
       </div>

@@ -10,6 +10,9 @@ interface QuizQuestionProps {
   selectedAnswer: string;
   onAnswerSelect: (answer: string) => void;
   levelName: string;
+  showFeedback?: boolean;
+  isCorrect?: boolean;
+  correctAnswer?: string;
 }
 
 const QuizQuestion = ({ 
@@ -18,7 +21,10 @@ const QuizQuestion = ({
   totalQuestions, 
   selectedAnswer, 
   onAnswerSelect,
-  levelName 
+  levelName,
+  showFeedback = false,
+  isCorrect = false,
+  correctAnswer
 }: QuizQuestionProps) => {
   const getOptionLetter = (index: number) => String.fromCharCode(97 + index); // a, b, c, d
 
@@ -47,19 +53,58 @@ const QuizQuestion = ({
             {question.options.map((option, index) => {
               const optionLetter = getOptionLetter(index);
               const isSelected = selectedAnswer === optionLetter;
+              const isCorrectOption = correctAnswer === optionLetter;
+              
+              let variant: "default" | "outline" | "destructive" | "secondary" = "outline";
+              let className = "justify-start text-left h-auto p-4 whitespace-normal";
+              
+              if (showFeedback) {
+                if (isSelected && isCorrect) {
+                  variant = "default";
+                  className += " bg-green-100 dark:bg-green-900 border-green-500";
+                } else if (isSelected && !isCorrect) {
+                  variant = "destructive";
+                } else if (isCorrectOption && !isCorrect) {
+                  variant = "secondary";
+                  className += " bg-green-100 dark:bg-green-900 border-green-500";
+                }
+              } else if (isSelected) {
+                variant = "default";
+              }
               
               return (
                 <Button
                   key={index}
-                  variant={isSelected ? "default" : "outline"}
-                  className="justify-start text-left h-auto p-4 whitespace-normal"
-                  onClick={() => onAnswerSelect(optionLetter)}
+                  variant={variant}
+                  className={className}
+                  onClick={() => !showFeedback && onAnswerSelect(optionLetter)}
+                  disabled={showFeedback}
                 >
                   <span className="font-mono font-semibold mr-3">{optionLetter})</span>
                   <span>{option}</span>
+                  {showFeedback && isSelected && (
+                    <span className="ml-auto">
+                      {isCorrect ? "✅" : "❌"}
+                    </span>
+                  )}
+                  {showFeedback && isCorrectOption && !isSelected && (
+                    <span className="ml-auto text-green-600">✓ Correct</span>
+                  )}
                 </Button>
               );
             })}
+            
+            {showFeedback && (
+              <div className="mt-4 p-4 rounded-lg bg-muted">
+                <p className="text-sm font-medium">
+                  {isCorrect ? (
+                    <span className="text-green-600">✅ Correct!</span>
+                  ) : (
+                    <span className="text-red-600">❌ Wrong! Correct answer was {correctAnswer}</span>
+                  )}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

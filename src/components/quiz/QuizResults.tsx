@@ -13,19 +13,26 @@ interface QuizResultsProps {
   onBackToLevels: () => void;
   onNextLevel?: () => void;
   isLastLevel: boolean;
+  gameOver?: boolean;
+  allLevelsComplete?: boolean;
+  passingScore: number;
 }
 
 const QuizResults = ({ 
-  levelName, 
-  questions, 
-  selectedAnswers, 
-  score, 
-  onRetakeLevel, 
+  levelName,
+  questions,
+  selectedAnswers,
+  score,
+  onRetakeLevel,
   onBackToLevels,
   onNextLevel,
-  isLastLevel 
+  isLastLevel,
+  gameOver = false,
+  allLevelsComplete = false,
+  passingScore
 }: QuizResultsProps) => {
-  const percentage = Math.round((score / questions.length) * 100);
+  const percentage = (score / questions.length) * 100;
+  const passed = score >= passingScore;
   const getOptionLetter = (index: number) => String.fromCharCode(97 + index);
   
   const isAnswerCorrect = (questionIndex: number) => {
@@ -35,39 +42,33 @@ const QuizResults = ({
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          {levelName} Results
+        <CardTitle className="text-2xl text-center">
+          {allLevelsComplete ? "🏆 Congratulations! All Levels Complete!" : 
+           gameOver ? "❌ Game Over" : 
+           passed ? "✅ Level Passed!" : "❌ Level Failed"}
         </CardTitle>
-        <CardDescription>Your performance on this level</CardDescription>
+        <CardDescription>
+          {allLevelsComplete ? 
+            "🎉 You completed all levels! Congratulations!" :
+            gameOver ? 
+              `❌ You did not pass ${levelName}. Game over.` :
+              passed ? 
+                `🎯 You scored ${score}/10 and passed ${levelName}!` :
+                `❌ You scored ${score}/10. You need ${passingScore}/10 to pass.`
+          }
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-center space-y-4">
-          <div className="text-5xl font-bold text-primary">
-            {score}/{questions.length}
+          <div className={`text-4xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
+            {score}/10
           </div>
           <div className="text-xl text-muted-foreground">
-            {percentage}% Score
+            {percentage.toFixed(1)}% correct
           </div>
-          {score === questions.length ? (
-            <div className="space-y-2">
-              <div className="text-2xl">🎉</div>
-              <div className="text-lg font-semibold text-green-600 dark:text-green-400">
-                Perfect Score! Level Mastered!
-              </div>
-            </div>
-          ) : score >= 7 ? (
-            <div className="space-y-2">
-              <div className="text-2xl">🎯</div>
-              <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                Great job! Level passed!
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="text-2xl">📘</div>
-              <div className="text-lg text-orange-600 dark:text-orange-400">
-                Keep practicing to improve your skills
-              </div>
+          {!passed && !allLevelsComplete && (
+            <div className="text-sm text-muted-foreground">
+              Minimum passing score: {passingScore}/10
             </div>
           )}
         </div>
@@ -118,19 +119,18 @@ const QuizResults = ({
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button onClick={onRetakeLevel} variant="outline" className="flex items-center gap-2">
-            <RotateCcw className="h-4 w-4" />
-            Retake Level
+        <div className="flex gap-3 justify-center">
+          {(gameOver || !passed) && (
+            <Button variant="outline" onClick={onRetakeLevel}>
+              Retake Level
+            </Button>
+          )}
+          <Button variant="outline" onClick={onBackToLevels}>
+            Back to Levels
           </Button>
-          <Button onClick={onBackToLevels} variant="outline" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            All Levels
-          </Button>
-          {!isLastLevel && score >= 7 && onNextLevel && (
-            <Button onClick={onNextLevel} className="flex items-center gap-2">
+          {passed && !isLastLevel && !allLevelsComplete && (
+            <Button onClick={onNextLevel}>
               Next Level
-              <ArrowRight className="h-4 w-4" />
             </Button>
           )}
         </div>

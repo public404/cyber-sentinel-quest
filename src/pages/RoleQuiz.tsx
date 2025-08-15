@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getRoleNames, getLevelsForRole, getQuestionsForRoleLevel } from '@/data/rolesData';
+import { getRoleNames, getLevelsForRole, getQuestionsForRoleLevel, PASSING_SCORE, shuffleArray } from '@/data/rolesData';
 import RoleSelector from '@/components/quiz/RoleSelector';
 import LevelSelector from '@/components/quiz/LevelSelector';
 import QuizQuestion from '@/components/quiz/QuizQuestion';
@@ -15,6 +15,12 @@ interface RoleQuizState {
   selectedAnswers: { [roleIndex: number]: { [levelIndex: number]: string[] } };
   showResults: boolean;
   quizComplete: boolean;
+  shuffledQuestions: any[];
+  gameOver: boolean;
+  allLevelsComplete: boolean;
+  currentAnswer: string;
+  showFeedback: boolean;
+  isCorrect: boolean;
 }
 
 const RoleQuiz = () => {
@@ -26,7 +32,13 @@ const RoleQuiz = () => {
     currentQuestion: 0,
     selectedAnswers: {},
     showResults: false,
-    quizComplete: false
+    quizComplete: false,
+    shuffledQuestions: [],
+    gameOver: false,
+    allLevelsComplete: false,
+    currentAnswer: '',
+    showFeedback: false,
+    isCorrect: false
   });
   
   const [completedRoles, setCompletedRoles] = useState<{ [roleIndex: number]: boolean }>({});
@@ -68,6 +80,14 @@ const RoleQuiz = () => {
   };
 
   const handleSelectLevel = (levelIndex: number) => {
+    // Check if previous levels were passed (sequential progression)
+    if (levelIndex > 0) {
+      const prevLevelScore = levelScores[quizState.currentRole]?.[levelIndex - 1] || 0;
+      if (prevLevelScore < PASSING_SCORE) {
+        return; // Cannot access this level
+      }
+    }
+
     // Initialize answers array for this role/level if it doesn't exist
     const newAnswers = { ...quizState.selectedAnswers };
     if (!newAnswers[quizState.currentRole]) {
@@ -77,17 +97,33 @@ const RoleQuiz = () => {
       newAnswers[quizState.currentRole][levelIndex] = [];
     }
 
+    // Shuffle questions for this level
+    const roleName = roleNames[quizState.currentRole];
+    const levelNames = getLevelsForRole(roleName);
+    const levelName = levelNames[levelIndex];
+    const questions = getQuestionsForRoleLevel(roleName, levelName);
+    const shuffled = shuffleArray(questions).slice(0, 10); // Take first 10 questions
+
     setQuizState({
       ...quizState,
       currentLevel: levelIndex,
       currentQuestion: 0,
       selectedAnswers: newAnswers,
       showResults: false,
-      quizComplete: false
+      quizComplete: false,
+      shuffledQuestions: shuffled,
+      gameOver: false,
+      allLevelsComplete: false,
+      currentAnswer: '',
+      showFeedback: false,
+      isCorrect: false
     });
   };
 
   const handleAnswerSelect = (answerIndex: string) => {
+    const currentQuestion = quizState.shuffledQuestions[quizState.currentQuestion];
+    const isCorrect = answerIndex === currentQuestion.answer;
+    
     const newAnswers = { ...quizState.selectedAnswers };
     if (!newAnswers[quizState.currentRole]) {
       newAnswers[quizState.currentRole] = {};
@@ -99,31 +135,25 @@ const RoleQuiz = () => {
     
     setQuizState({
       ...quizState,
-      selectedAnswers: newAnswers
+      selectedAnswers: newAnswers,
+      currentAnswer: answerIndex,
+      showFeedback: true,
+      isCorrect
     });
   };
 
   const handleNext = () => {
-    const roleName = roleNames[quizState.currentRole];
-    const levelNames = getLevelsForRole(roleName);
-    const levelName = levelNames[quizState.currentLevel];
-    const questions = getQuestionsForRoleLevel(roleName, levelName);
-    
-    if (quizState.currentQuestion < questions.length - 1) {
+    if (quizState.currentQuestion < quizState.shuffledQuestions.length - 1) {
       setQuizState({
         ...quizState,
-        currentQuestion: quizState.currentQuestion + 1
+        currentQuestion: quizState.currentQuestion + 1,
+        currentAnswer: '',
+        showFeedback: false,
+        isCorrect: false
       });
     } else {
       // Level complete
       const score = calculateScore();
-      
-      // Update completed levels
-      const newCompletedLevels = { ...completedLevels };
-      if (!newCompletedLevels[quizState.currentRole]) {
-        newCompletedLevels[quizState.currentRole] = {};
-      }
-      newCompletedLevels[quizState.currentRole][quizState.currentLevel] = true;
       
       // Update level scores
       const newLevelScores = { ...levelScores };
@@ -132,30 +162,62 @@ const RoleQuiz = () => {
       }
       newLevelScores[quizState.currentRole][quizState.currentLevel] = score;
       
-      // Check if role is complete (all levels done)
-      const totalLevels = levelNames.length;
-      const completedLevelsInRole = Object.keys(newCompletedLevels[quizState.currentRole] || {}).length;
-      const newCompletedRoles = { ...completedRoles };
-      if (completedLevelsInRole >= totalLevels) {
-        newCompletedRoles[quizState.currentRole] = true;
-        // Calculate role score (sum of all level scores)
-        const newRoleScores = { ...roleScores };
-        newRoleScores[quizState.currentRole] = Object.values(newLevelScores[quizState.currentRole] || {}).reduce((sum, s) => sum + s, 0);
-        setRoleScores(newRoleScores);
-        saveProgress(newCompletedRoles, newCompletedLevels, newRoleScores, newLevelScores);
-      } else {
-        saveProgress(newCompletedRoles, newCompletedLevels, roleScores, newLevelScores);
+      // Check if passed (score >= 7)
+      const passed = score >= PASSING_SCORE;
+      
+      if (!passed) {
+        // Game over - did not pass
+        setQuizState({
+          ...quizState,
+          gameOver: true,
+          showResults: true,
+          quizComplete: true
+        });
+        setLevelScores(newLevelScores);
+        saveProgress(completedRoles, completedLevels, roleScores, newLevelScores);
+        return;
       }
       
-      setCompletedRoles(newCompletedRoles);
+      // Update completed levels
+      const newCompletedLevels = { ...completedLevels };
+      if (!newCompletedLevels[quizState.currentRole]) {
+        newCompletedLevels[quizState.currentRole] = {};
+      }
+      newCompletedLevels[quizState.currentRole][quizState.currentLevel] = true;
+      
+      // Check if all levels complete
+      const roleName = roleNames[quizState.currentRole];
+      const levelNames = getLevelsForRole(roleName);
+      const totalLevels = levelNames.length;
+      const isLastLevel = quizState.currentLevel === totalLevels - 1;
+      
+      if (isLastLevel) {
+        // All levels complete - congratulations!
+        const newCompletedRoles = { ...completedRoles };
+        newCompletedRoles[quizState.currentRole] = true;
+        const newRoleScores = { ...roleScores };
+        newRoleScores[quizState.currentRole] = Object.values(newLevelScores[quizState.currentRole] || {}).reduce((sum, s) => sum + s, 0);
+        
+        setCompletedRoles(newCompletedRoles);
+        setRoleScores(newRoleScores);
+        setQuizState({
+          ...quizState,
+          allLevelsComplete: true,
+          showResults: true,
+          quizComplete: true
+        });
+        saveProgress(newCompletedRoles, newCompletedLevels, newRoleScores, newLevelScores);
+      } else {
+        setQuizState({
+          ...quizState,
+          showResults: true,
+          quizComplete: true
+        });
+        saveProgress(completedRoles, newCompletedLevels, roleScores, newLevelScores);
+      }
+      
       setCompletedLevels(newCompletedLevels);
       setLevelScores(newLevelScores);
-      
-      setQuizState({
-        ...quizState,
-        showResults: true,
-        quizComplete: true
-      });
     }
   };
 
@@ -169,14 +231,10 @@ const RoleQuiz = () => {
   };
 
   const calculateScore = () => {
-    const roleName = roleNames[quizState.currentRole];
-    const levelNames = getLevelsForRole(roleName);
-    const levelName = levelNames[quizState.currentLevel];
-    const questions = getQuestionsForRoleLevel(roleName, levelName);
     const answers = quizState.selectedAnswers[quizState.currentRole]?.[quizState.currentLevel] || [];
     
     return answers.reduce((score, answer, index) => {
-      return score + (answer === questions[index]?.answer ? 1 : 0);
+      return score + (answer === quizState.shuffledQuestions[index]?.answer ? 1 : 0);
     }, 0);
   };
 
@@ -187,12 +245,25 @@ const RoleQuiz = () => {
     }
     newAnswers[quizState.currentRole][quizState.currentLevel] = [];
     
+    // Re-shuffle questions
+    const roleName = roleNames[quizState.currentRole];
+    const levelNames = getLevelsForRole(roleName);
+    const levelName = levelNames[quizState.currentLevel];
+    const questions = getQuestionsForRoleLevel(roleName, levelName);
+    const shuffled = shuffleArray(questions).slice(0, 10);
+    
     setQuizState({
       ...quizState,
       currentQuestion: 0,
       selectedAnswers: newAnswers,
       showResults: false,
-      quizComplete: false
+      quizComplete: false,
+      shuffledQuestions: shuffled,
+      gameOver: false,
+      allLevelsComplete: false,
+      currentAnswer: '',
+      showFeedback: false,
+      isCorrect: false
     });
   };
 
@@ -232,13 +303,24 @@ const RoleQuiz = () => {
         newAnswers[quizState.currentRole][nextLevel] = [];
       }
 
+      // Shuffle questions for next level
+      const nextLevelName = levelNames[nextLevel];
+      const questions = getQuestionsForRoleLevel(roleName, nextLevelName);
+      const shuffled = shuffleArray(questions).slice(0, 10);
+
       setQuizState({
         ...quizState,
         currentLevel: nextLevel,
         currentQuestion: 0,
         selectedAnswers: newAnswers,
         showResults: false,
-        quizComplete: false
+        quizComplete: false,
+        shuffledQuestions: shuffled,
+        gameOver: false,
+        allLevelsComplete: false,
+        currentAnswer: '',
+        showFeedback: false,
+        isCorrect: false
       });
     }
   };
@@ -305,7 +387,6 @@ const RoleQuiz = () => {
     const roleName = roleNames[quizState.currentRole];
     const levelNames = getLevelsForRole(roleName);
     const levelName = levelNames[quizState.currentLevel];
-    const questions = getQuestionsForRoleLevel(roleName, levelName);
     const score = calculateScore();
     
     return (
@@ -313,13 +394,16 @@ const RoleQuiz = () => {
         <div className="max-w-4xl mx-auto">
           <QuizResults
             levelName={levelName}
-            questions={questions}
+            questions={quizState.shuffledQuestions}
             selectedAnswers={quizState.selectedAnswers[quizState.currentRole]?.[quizState.currentLevel] || []}
             score={score}
             onRetakeLevel={handleRetakeLevel}
             onBackToLevels={handleBackToLevels}
             onNextLevel={handleNextLevel}
             isLastLevel={quizState.currentLevel === levelNames.length - 1}
+            gameOver={quizState.gameOver}
+            allLevelsComplete={quizState.allLevelsComplete}
+            passingScore={PASSING_SCORE}
           />
         </div>
       </div>
@@ -330,9 +414,8 @@ const RoleQuiz = () => {
   const roleName = roleNames[quizState.currentRole];
   const levelNames = getLevelsForRole(roleName);
   const levelName = levelNames[quizState.currentLevel];
-  const questions = getQuestionsForRoleLevel(roleName, levelName);
-  const currentQuestion = questions[quizState.currentQuestion];
-  const progress = ((quizState.currentQuestion + 1) / questions.length) * 100;
+  const currentQuestion = quizState.shuffledQuestions[quizState.currentQuestion];
+  const progress = ((quizState.currentQuestion + 1) / quizState.shuffledQuestions.length) * 100;
   const selectedAnswer = quizState.selectedAnswers[quizState.currentRole]?.[quizState.currentLevel]?.[quizState.currentQuestion] || '';
 
   return (
@@ -346,7 +429,7 @@ const RoleQuiz = () => {
           <div className="text-center">
             <div className="text-sm text-muted-foreground">{roleName}</div>
             <div className="text-sm text-muted-foreground">
-              Question {quizState.currentQuestion + 1} of {questions.length}
+              Question {quizState.currentQuestion + 1} of {quizState.shuffledQuestions.length}
             </div>
           </div>
           <div></div>
@@ -363,10 +446,13 @@ const RoleQuiz = () => {
           <QuizQuestion
             question={currentQuestion}
             questionNumber={quizState.currentQuestion + 1}
-            totalQuestions={questions.length}
+            totalQuestions={quizState.shuffledQuestions.length}
             selectedAnswer={selectedAnswer}
             onAnswerSelect={handleAnswerSelect}
             levelName={levelName}
+            showFeedback={quizState.showFeedback}
+            isCorrect={quizState.isCorrect}
+            correctAnswer={currentQuestion?.answer}
           />
           
           <div className="flex justify-between">
@@ -379,9 +465,9 @@ const RoleQuiz = () => {
             </Button>
             <Button
               onClick={handleNext}
-              disabled={!selectedAnswer}
+              disabled={!quizState.showFeedback}
             >
-              {quizState.currentQuestion === questions.length - 1 ? 'Finish Level' : 'Next'}
+              {quizState.currentQuestion === quizState.shuffledQuestions.length - 1 ? 'Finish Level' : 'Next'}
             </Button>
           </div>
         </div>
