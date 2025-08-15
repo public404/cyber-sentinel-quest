@@ -121,9 +121,6 @@ const RoleQuiz = () => {
   };
 
   const handleAnswerSelect = (answerIndex: string) => {
-    const currentQuestion = quizState.shuffledQuestions[quizState.currentQuestion];
-    const isCorrect = answerIndex === currentQuestion.answer;
-    
     const newAnswers = { ...quizState.selectedAnswers };
     if (!newAnswers[quizState.currentRole]) {
       newAnswers[quizState.currentRole] = {};
@@ -135,10 +132,7 @@ const RoleQuiz = () => {
     
     setQuizState({
       ...quizState,
-      selectedAnswers: newAnswers,
-      currentAnswer: answerIndex,
-      showFeedback: true,
-      isCorrect
+      selectedAnswers: newAnswers
     });
   };
 
@@ -146,10 +140,7 @@ const RoleQuiz = () => {
     if (quizState.currentQuestion < quizState.shuffledQuestions.length - 1) {
       setQuizState({
         ...quizState,
-        currentQuestion: quizState.currentQuestion + 1,
-        currentAnswer: '',
-        showFeedback: false,
-        isCorrect: false
+        currentQuestion: quizState.currentQuestion + 1
       });
     } else {
       // Level complete
@@ -450,9 +441,6 @@ const RoleQuiz = () => {
             selectedAnswer={selectedAnswer}
             onAnswerSelect={handleAnswerSelect}
             levelName={levelName}
-            showFeedback={quizState.showFeedback}
-            isCorrect={quizState.isCorrect}
-            correctAnswer={currentQuestion?.answer}
           />
           
           <div className="flex justify-between">
@@ -465,7 +453,7 @@ const RoleQuiz = () => {
             </Button>
             <Button
               onClick={handleNext}
-              disabled={!quizState.showFeedback}
+              disabled={!selectedAnswer}
             >
               {quizState.currentQuestion === quizState.shuffledQuestions.length - 1 ? 'Finish Level' : 'Next'}
             </Button>
