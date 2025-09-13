@@ -452,7 +452,7 @@ const CyberSentinel = () => {
           <CardContent className="p-8 text-center">
             <div className="scanline mb-8">
               <h1 className="text-4xl font-bold matrix-text mb-4">
-                CYBER SENTINEL
+                CYBER DRONACHARYA
               </h1>
               <p className="text-xl terminal-text mb-2">
                 Ethical Hacking Simulator
