@@ -1,0 +1,4 @@
+project_id = "ctmndgwdfgldxnhznfqt"
+
+[functions.cybersecurity-chat]
+verify_jwt = false
