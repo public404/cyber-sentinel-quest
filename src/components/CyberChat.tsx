@@ -45,9 +45,20 @@ export const CyberChat = () => {
         }
       );
 
-      if (!response.ok || !response.body) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to start stream");
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Failed to start chat";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      if (!response.body) {
+        throw new Error("No response body received");
       }
 
       const reader = response.body.getReader();
@@ -102,9 +113,22 @@ export const CyberChat = () => {
     } catch (error) {
       console.error("Chat error:", error);
       setIsLoading(false);
+      
+      // Remove the failed user message
+      setMessages(messages);
+      
+      let errorMessage = "Failed to send message. Please try again.";
+      if (error instanceof Error) {
+        if (error.message.includes("fetch")) {
+          errorMessage = "Connection failed. Please check your internet connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message",
+        description: errorMessage,
         variant: "destructive",
       });
     }
